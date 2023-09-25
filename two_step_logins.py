@@ -771,7 +771,34 @@ def fep_dental_blue_login():
                               
         except Exception as e:
             special_print(f"Error: {str(e)}", 'RED')
-            traceback.print_exc()        
+            traceback.print_exc()
+
+def always_assist_login():
+    bot_name:str = "Always Assist"
+    driver = initialize_browser()
+    credentials:dict = get_bots_credentials_ccc(bot_name)
+    url:str = 'https://unumdentalpwp.skygenusasystems.com/Account/Login'
+    wait = WebDriverWait(driver,10)
+
+    if driver:
+        open_url(driver, url)
+        try:
+            
+            username_input = wait.until(EC.presence_of_element_located((By.ID, 'userNameTextBox')))
+            username_input.send_keys(credentials[0])
+            password_input = wait.until(EC.presence_of_element_located((By.ID,'passwordTextBox')))
+            password_input.send_keys(credentials[1])
+            
+            login_button = wait.until(EC.presence_of_element_located((By.ID,'failed_login_submit_btn')))
+            login_button.click()
+           
+
+                
+        
+        except Exception as e:
+            special_print(f"Error during 2FA: {str(e)}", 'RED')
+            traceback.print_exc()
+
     
  
 
@@ -788,11 +815,12 @@ def main():
     #names_bots_2fa = []
     #names_bots_2fa = ['FEP Dental Blue']
     #names_bots_2fa = ['Lincoln Financial']
-    names_bots_2fa = ['Skygen']
+    #names_bots_2fa = ['Skygen']
     #names_bots_2fa = ['Ameritas']
     #names_bots_2fa = ['Sunlife']
     #names_bots_2fa = ['Humana Availity']
     #names_bots_2fa = ['Cigna API']
+    names_bots_2fa = ['Always Assist']
 
    
 
@@ -847,6 +875,8 @@ def main():
             new_health_choice()
         elif bot_name == "FEP Dental Blue":
             fep_dental_blue_login()
+        elif bot_name == "Always Assist":
+            always_assist_login()
     
         else:
             special_print(f"Login for {bot_name} not developed.",'YELLOW_BG')
