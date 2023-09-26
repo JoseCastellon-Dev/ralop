@@ -397,10 +397,7 @@ def login_ameritas(driver, credentials, bot_name , url):
 
 
 def login_united_health_care(driver, credentials, bot_name , url):
-    bot_name:str = "United HealthCare"
-    driver = initialize_browser()
-    credentials:dict = get_bots_credentials_ccc(bot_name)
-    url:str = 'https://identity.onehealthcareid.com/oneapp/index.html#/login'
+   
     wait:int = WebDriverWait(driver,10)
 
     if driver:
@@ -466,8 +463,8 @@ def login_united_health_care(driver, credentials, bot_name , url):
                 traceback.print_exc()
                
 
-def login_new_health_choice():
-    login_united_health_care()
+def login_new_health_choice(driver, credentials, bot_name, url):
+    login_united_health_care(driver, credentials, bot_name, url)
 
 
 def login_cigna(driver, credentials, bot_name, url):
@@ -576,10 +573,7 @@ def login_availity(driver, credentials, bot_name , url):
 
 
 def login_guardian(driver, credentials, bot_name , url):
-    bot_name:str = "Guardian"
-    driver = initialize_browser()
-    credentials:dict = get_bots_credentials_ccc(bot_name)
-    url:str = 'https://signin.guardianlife.com/signin' 
+    
     wait:int = WebDriverWait(driver, 10)
     
     
