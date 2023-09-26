@@ -213,13 +213,11 @@ def exists(driver, by, search)-> bool:
     except NoSuchElementException:
         return False
 
- 
-def skygen_login():
-    bot_name:str = "Skygen"
-    driver = initialize_browser()
-    credentials:dict = get_bots_credentials_ccc(bot_name)
-    url:str = 'https://app.dentalhub.com/app/login'
 
+
+
+def login_skygen(driver, credentials, bot_name, url):    
+    
     if driver:
         open_url(driver, url)
         try:
@@ -276,12 +274,8 @@ def skygen_login():
             traceback.print_exc()
 
 
-def lincoln_financial_login():
-    bot_name:str = "Lincoln Financial"
-    driver = initialize_browser()
-    url:str = 'https://provider.mylincolnportal.com/dental/login'
-    credentials:dict = get_bots_credentials_ccc(bot_name)
-
+def login_lincoln_financial(driver, credentials, bot_name, url):
+       
     if driver:
         open_url(driver, url)
         try:
@@ -344,18 +338,12 @@ def lincoln_financial_login():
 
                 
 
-def ameritas_login():
-    bot_name:str = "Ameritas"
-    driver = initialize_browser()
-    credentials:dict = get_bots_credentials_ccc(bot_name)
-
-    url:str = 'https://www.ameritas.com/employee-benefits/'
-    url2:str = "https://www.ameritas.com/applications/group/provider"
-    
+def login_ameritas(driver, credentials, bot_name , url):
+       
 
     if driver:
            
-            open_url(driver, url2)
+            open_url(driver, url)
             wait = WebDriverWait(driver, 10)
             try:            
         
@@ -408,7 +396,7 @@ def ameritas_login():
                     
 
 
-def united_health_care_login():
+def login_united_health_care(driver, credentials, bot_name , url):
     bot_name:str = "United HealthCare"
     driver = initialize_browser()
     credentials:dict = get_bots_credentials_ccc(bot_name)
@@ -478,16 +466,12 @@ def united_health_care_login():
                 traceback.print_exc()
                
 
-def new_health_choice():
-    united_health_care_login()
+def login_new_health_choice():
+    login_united_health_care()
 
 
-def cigna_login():
-    bot_name:str = "Cigna API"
-    driver = initialize_browser()
-    credentials:dict = get_bots_credentials_ccc(bot_name)
-    url:str = 'https://cignaforhcp.cigna.com/app/login'
-
+def login_cigna(driver, credentials, bot_name, url):
+    
     if driver:
         open_url(driver, url)
         try:
@@ -545,11 +529,8 @@ def cigna_login():
 
       
       
-def availity_login():
-    bot_name:str = "Humana Availity"
-    driver = initialize_browser()
-    credentials:dict = get_bots_credentials_ccc(bot_name)
-    url:str = 'https://apps.availity.com/public/apps/home/#!/'
+def login_availity(driver, credentials, bot_name , url):
+   
     wait:int = WebDriverWait(driver,10)
     if driver:
             open_url(driver, url)
@@ -594,7 +575,7 @@ def availity_login():
                 
 
 
-def guardian_login():
+def login_guardian(driver, credentials, bot_name , url):
     bot_name:str = "Guardian"
     driver = initialize_browser()
     credentials:dict = get_bots_credentials_ccc(bot_name)
@@ -646,13 +627,8 @@ def guardian_login():
                     
 
 
-def sun_life_login():
+def login_sun_life(driver, credentials, bot_name , url):
    
-    bot_name:str = "Sunlife"
-    driver = initialize_browser()
-    credentials:dict = get_bots_credentials_ccc(bot_name)
-    wait:int = WebDriverWait(driver,10)
-    url:str = 'https://login.sunlifeconnect.com/commonlogin/#/login/10'
     dashboard = None
     if driver:
             open_url(driver, url)
@@ -700,12 +676,10 @@ def sun_life_login():
                 traceback.print_exc()
 
 
-def fep_dental_blue_login():
-    bot_name:str = "FEP Dental Blue"
-    driver = initialize_browser()
-    credentials:dict = get_bots_credentials_ccc(bot_name)
+def login_fep_dental_blue(driver, credentials, bot_name , url):
+    
     wait:int = WebDriverWait(driver,10)
-    url:str = 'https://www.bcbsfepdental.com/'
+    
     dashboard = None
     if driver:
         open_url(driver, url)
@@ -773,11 +747,8 @@ def fep_dental_blue_login():
             special_print(f"Error: {str(e)}", 'RED')
             traceback.print_exc()
 
-def always_assist_login():
-    bot_name:str = "Always Assist"
-    driver = initialize_browser()
-    credentials:dict = get_bots_credentials_ccc(bot_name)
-    url:str = 'https://unumdentalpwp.skygenusasystems.com/Account/Login'
+def login_always_assist(driver, credentials, bot_name, url):
+    
     wait = WebDriverWait(driver,10)
 
     if driver:
@@ -802,98 +773,104 @@ def always_assist_login():
     
  
 
+
 def main():
     global driver,get_carriers_per_client,init_contexts,initialize_browser,get_bots_credentials_ccc
 
-    init_contexts()
-    office:dict = get_carriers_per_client()
-    #print(dir(office))
-    special_print(f'Office Name: {office.office_name}','BOLD')
-    special_print(f'Office ID: {office.office_id}','BOLD')
+    driver = initialize_browser()
+    try:
+        # Initialize contexts and retrieve office information.
+        init_contexts()
+        office:dict = get_carriers_per_client()
+            
+        if office:
+            special_print(f'Office Name: {office.office_name}', 'BOLD')
+            special_print(f'Office ID: {office.office_id}', 'BOLD')
+
+            #bots_2fa = ["Cigna API","Skygen"]
+            bots_2fa = []
+            for bot in office.bots:
+                bot_info = vars(bot)
+                status = bot_info.get('status')
+                if status and status[0] == '63779e5529096ea72ab23c5b' and status[1] == '2FA':
+                    name = bot_info.get('name')
+                    if name:
+                        bots_2fa.append(name)
+
+            custom_sort = ["Skygen", "Cigna API"]
+            bots_2fa.sort(key=lambda x: custom_sort.index(x) if x in custom_sort else len(custom_sort))
+
+            special_print("Bots with '2FA' status:", "MAGENTA_BG")
+            special_print(f'{bots_2fa}', "CYAN")
+
+            for idx, bot_name in enumerate(bots_2fa):
+                
    
+                if idx != 0:
+                    time.sleep(5)
+                    input(f"Press Enter to start the next login process...")
+                    if driver:
+                        driver.quit()
+                        driver = initialize_browser() 
 
-    #names_bots_2fa = []
-    #names_bots_2fa = ['FEP Dental Blue']
-    #names_bots_2fa = ['Lincoln Financial']
-    #names_bots_2fa = ['Skygen']
-    #names_bots_2fa = ['Ameritas']
-    #names_bots_2fa = ['Sunlife']
-    #names_bots_2fa = ['Humana Availity']
-    #names_bots_2fa = ['Cigna API']
-    names_bots_2fa = ['Always Assist']
+                credentials = get_bots_credentials_ccc(bot_name)
 
-   
+                if bot_name == "Skygen":
+                    url:str = 'https://app.dentalhub.com/app/login'
+                    login_skygen(driver, credentials, bot_name, url )
 
+                elif bot_name == "Lincoln Financial":
+                    url:str = 'https://provider.mylincolnportal.com/dental/login'
+                    login_lincoln_financial(driver, credentials, bot_name, url)
 
-    '''for bot in office.bots:
-            bot_info = vars(bot)
-            status = bot_info.get('status')
-            if status and status[0] == '63779e5529096ea72ab23c5b' and status[1] == '2FA':
-                name = bot_info.get('name')
-                if name:
-                    names_bots_2fa.append(name)'''
+                elif bot_name == "Ameritas":
+                    url:str = "https://www.ameritas.com/applications/group/provider"
+                    login_ameritas(driver, credentials, bot_name, url)
 
-    
-    custom_sort= ["Skygen", "Cigna API"]
-    names_bots_2fa.sort(key=lambda x: custom_sort.index(x) if x in custom_sort else len(custom_sort))
+                elif bot_name == "United HealthCare":
+                    url:str = 'https://identity.onehealthcareid.com/oneapp/index.html#/login'
+                    login_united_health_care(driver, credentials, bot_name, url)
 
+                elif bot_name == "Cigna API":
+                    url:str = 'https://cignaforhcp.cigna.com/app/login'
+                    login_cigna (driver, credentials, bot_name, url)
 
-    special_print("Bots with '2FA' status:","MAGENTA_BG")
-    special_print(f'{names_bots_2fa}',"CYAN")
-    
+                elif bot_name == "Humana Availity":
+                    url:str = 'https://apps.availity.com/public/apps/home/#!/'
+                    login_availity(driver, credentials, bot_name,url)
 
-    
+                elif bot_name == "Guardian":
+                    url:str = 'https://signin.guardianlife.com/signin'
+                    login_guardian(driver, credentials, bot_name, url )
 
+                elif bot_name == "Sunlife":
+                    url:str = 'https://login.sunlifeconnect.com/commonlogin/#/login/10'
+                    login_sun_life(driver, credentials, bot_name, url)
 
+                elif bot_name == "New Health Choice":
+                    url:str = 'https://identity.onehealthcareid.com/oneapp/index.html#/login'
+                    login_new_health_choice(driver, credentials, bot_name, url)
 
-    for idx,bot_name in enumerate(names_bots_2fa):
-        
-        if idx != 0:
+                elif bot_name == "FEP Dental Blue":
+                    url:str = 'https://www.bcbsfepdental.com/'
+                    login_fep_dental_blue(driver, credentials, bot_name, url)
 
+                elif bot_name == "Always Assist":
+                    url:str = 'https://unumdentalpwp.skygenusasystems.com/Account/Login'
+                    login_always_assist(driver, credentials, bot_name, url)
+                else:
+                    special_print(f"Login for {bot_name} not developed.", 'YELLOW_BG')
+                        
+                    
+    finally:
+        if driver:
+            print("All logins completed.")
             time.sleep(5)
-            print(f"Press Enter to start the next login process...")
-            if driver:
-                driver.quit() 
-
-        if bot_name == "Skygen":
-            skygen_login()
-        elif bot_name == "Lincoln Financial":
-            lincoln_financial_login()
-        elif bot_name == "Ameritas":
-            ameritas_login()
-        elif bot_name == "United HealthCare":
-            united_health_care_login()
-        elif bot_name == "Cigna API":
-            cigna_login()
-        elif bot_name == "Humana Availity":
-            availity_login()
-        elif bot_name == "Guardian":
-            guardian_login()
-        elif bot_name == "Sunlife":
-            sun_life_login()
-        elif bot_name == "New Health Choice":
-            new_health_choice()
-        elif bot_name == "FEP Dental Blue":
-            fep_dental_blue_login()
-        elif bot_name == "Always Assist":
-            always_assist_login()
-    
-        else:
-            special_print(f"Login for {bot_name} not developed.",'YELLOW_BG')
-
-
-    if driver:
-        print("All logins completed.")
-        time.sleep(5)
-        driver.quit()
-        print("Session closed.")
-        '''user_input = input("Do you want to quit the session? (y/n): ")
-        if user_input.lower() == "y":
             driver.quit()
             print("Session closed.")
-        else:
-            print("Session not closed.")'''
-      
+
 
 main()
+
+
   
