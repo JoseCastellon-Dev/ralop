@@ -797,9 +797,7 @@ def main():
             special_print("Bots with '2FA' status:", "MAGENTA_BG")
             special_print(f'{bots_2fa}', "CYAN")
 
-            for idx, bot_name in enumerate(bots_2fa):
-                
-   
+            for idx, bot_name in enumerate(bots_2fa):              
                 if idx != 0:
                     time.sleep(5)
                     input(f"Press Enter to start the next login process...")
@@ -859,7 +857,7 @@ def main():
     finally:
         if driver:
             print("All logins completed.")
-            time.sleep(5)
+            time.sleep(3)
             driver.quit()
             print("Session closed.")
 
