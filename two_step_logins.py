@@ -1,6 +1,6 @@
 import os
 import sys
-import time
+from time import sleep
 import requests
 from base64 import b64encode,b64decode
 import traceback
@@ -32,10 +32,7 @@ token = GetVar("carriers_token")
 
 token = api_creds.needs_decode(token)
 clinic_id:str = GetVar("clinicId")
-
 max_wait_time = 120
-
-   
 
 API_URL_BASE = "https://carriers.dentalautomation.ai"
 
@@ -73,7 +70,7 @@ color_mapping = {
 
 def wait_for_dashboard(driver, by, selector, wait_time=max_wait_time):
     for _ in range(wait_time):
-        time.sleep(1)
+        sleep(1)
         try:
             element = driver.find_element(by, selector)
             if element:
@@ -178,7 +175,7 @@ def initialize_browser()-> webdriver2.Chrome or None:
         chrome_options = webdriver2.ChromeOptions()
         chrome_options.add_argument('--start-maximized')  # Maximize the browser window
         chrome_options.add_argument('--user-data-dir=' + profile_path)  # Path to browser profile
-        time.sleep(2)
+        sleep(2)
         
         # Path to the Chrome driver executable
         chrome_driver = os.path.join(
@@ -221,12 +218,12 @@ def login_skygen(driver, credentials, bot_name, url):
     if driver:
         open_url(driver, url)
         try:
-            time.sleep(2)
+            sleep(2)
             wait = WebDriverWait(driver, 20)
             login_button = wait.until(EC.presence_of_element_located((By.ID, "btnOidcLogin")))
             login_button.click()
 
-            time.sleep(2)
+            sleep(2)
             email = wait.until(EC.presence_of_element_located((By.ID, "signInName")))
             email.click()
             email.send_keys(credentials[0])  # Username
@@ -260,15 +257,11 @@ def login_skygen(driver, credentials, bot_name, url):
                     else:
                         special_print('2FA unsuccessful', 'RED')
                         send_status(token, data={'bot': bot_name, 'clinic': clinic_id, 'status': 2})
-
-
                 
-        except TimeoutException:
+        except (TimeoutException, NoSuchWindowException) as e:
             special_print('2FA unsuccessful', 'RED')
             send_status(token, data={'bot': bot_name, 'clinic': clinic_id, 'status': 2})
-        except NoSuchWindowException:
-            special_print('2FA unsuccessful', 'RED')
-            send_status(token, data={'bot': bot_name, 'clinic': clinic_id, 'status': 2})
+        
         except Exception as e:
             special_print(f"Error during 2FA: {str(e)}", 'RED')
             traceback.print_exc()
@@ -292,12 +285,12 @@ def login_lincoln_financial(driver, credentials, bot_name, url):
             input_element.click()
             input_element.send_keys(credentials[0])  # Username
 
-            time.sleep(3)
+            sleep(3)
             password_input = driver.find_element_by_id("password")
             password_input.click()
             password_input.send_keys(credentials[1])  # Password
 
-            time.sleep(3)
+            sleep(3)
             element = WebDriverWait(driver, 5).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div/div/div[3]/div/div[2]/div/div/div/div/div[1]/div/div/form/div/button')))
             element.click()
 
@@ -327,9 +320,7 @@ def login_lincoln_financial(driver, credentials, bot_name, url):
                         special_print('2FA unsuccessful', 'RED')
                         send_status(token, data={'bot': bot_name, 'clinic': clinic_id, 'status': 2})
                            
-                           
-           
-        except NoSuchWindowException:
+        except (TimeoutException, NoSuchWindowException) as e:
             special_print('2FA unsuccessful', 'RED')
             send_status(token, data={'bot': bot_name, 'clinic': clinic_id, 'status': 2})
         except Exception as e:
@@ -340,7 +331,6 @@ def login_lincoln_financial(driver, credentials, bot_name, url):
 
 def login_ameritas(driver, credentials, bot_name , url):
        
-
     if driver:
            
             open_url(driver, url)
@@ -369,25 +359,19 @@ def login_ameritas(driver, credentials, bot_name , url):
                         if two_step:
                             special_print('2FA required', 'YELLOW')
                             two_step.click()
-                            try:
-                                dashboard = wait_for_dashboard(driver,By.XPATH, "//span[text()='Sign Out']")
-                                if dashboard:
-                                    special_print("Active", 'GREEN')
-                                    send_status(token, data={'bot': bot_name, 'clinic': clinic_id, 'status': 1})
-                                else:
-                                    special_print(f'Dashboard not found after {max_wait_time} seconds', 'RED')
-                                    special_print('2FA unsuccessful', 'RED')
-                                    send_status(token, data={'bot': bot_name, 'clinic': clinic_id, 'status': 2})
-                            
-                            except TimeoutException:
+                           
+                            dashboard = wait_for_dashboard(driver,By.XPATH, "//span[text()='Sign Out']")
+                            if dashboard:
+                                special_print("Active", 'GREEN')
+                                send_status(token, data={'bot': bot_name, 'clinic': clinic_id, 'status': 1})
+                            else:
+                                special_print(f'Dashboard not found after {max_wait_time} seconds', 'RED')
                                 special_print('2FA unsuccessful', 'RED')
-                                send_status(token, data={'bot': bot_name, 'clinic': clinic_id, 'status': 2})  
-                                
-                    except TimeoutException:
-                        special_print('2FA unsuccessful', 'RED')
-                        send_status(token, data={'bot': bot_name, 'clinic': clinic_id, 'status': 2})                            
-
-            except NoSuchWindowException:
+                                send_status(token, data={'bot': bot_name, 'clinic': clinic_id, 'status': 2})
+                    except:
+                        pass
+                            
+            except (TimeoutException, NoSuchWindowException) as e:
                 special_print('2FA unsuccessful', 'RED')
                 send_status(token, data={'bot': bot_name, 'clinic': clinic_id, 'status': 2})
             except Exception as e:
@@ -455,7 +439,7 @@ def login_united_health_care(driver, credentials, bot_name , url):
                                                        
 
                     
-            except NoSuchWindowException:
+            except(TimeoutException, NoSuchWindowException) as e:
                 special_print('2FA unsuccessful', 'RED')
                 send_status(token, data={'bot': bot_name, 'clinic': clinic_id, 'status': 2})
             except Exception as e:
@@ -484,9 +468,9 @@ def login_cigna(driver, credentials, bot_name, url):
             login_button = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "[value='Login']")))
             login_button.click()
 
-            time.sleep(10)
+            sleep(10)
             currentUrl = driver.current_url
-            time.sleep(5)
+            sleep(5)
             print(currentUrl)
             if 'dashboard' in currentUrl:
                 special_print('Active', 'GREEN')
@@ -498,7 +482,7 @@ def login_cigna(driver, credentials, bot_name, url):
                 radio_button.click()
                 
                 for _ in range(max_wait_time):
-                    time.sleep(1)
+                    sleep(1)
                     currentUrl = driver.current_url
                     try:
                         if 'dashboard' in currentUrl:
@@ -515,7 +499,7 @@ def login_cigna(driver, credentials, bot_name, url):
                 special_print('Bad credentials', 'YELLOW')
                 send_status(token, data={'bot': bot_name, 'clinic': clinic_id, 'status': 5})
 
-        except NoSuchWindowException:
+        except (TimeoutException, NoSuchWindowException) as e:
             special_print('2FA unsuccessful', 'RED')
             send_status(token, data={'bot': bot_name, 'clinic': clinic_id, 'status': 2})
 
@@ -538,7 +522,7 @@ def login_availity(driver, credentials, bot_name , url):
                 password =  wait.until(EC.presence_of_element_located((By.ID, 'password'))).send_keys(credentials[1])
                 login_subtmit_button = wait.until(EC.presence_of_element_located((By.ID, "loginFormSubmit"))).click()
                 dashboard = None
-                time.sleep(7)
+                sleep(7)
                 currentUrl = driver.current_url
                 
                 try:
@@ -561,8 +545,7 @@ def login_availity(driver, credentials, bot_name , url):
                         except NoSuchElementException:
                             special_print('2FA unsuccessful', 'RED')
                             send_status(token, data={'bot': bot_name, 'clinic': clinic_id, 'status': 2})
-                    
-
+                
                     elif exists(driver, By.CSS_SELECTOR, '#the_feedback > ul > li > span > a'): 
                         print('Bad credentials')
                         send_status(token, data={'bot': bot_name, 'clinic': clinic_id, 'status': 5})
@@ -587,7 +570,7 @@ def login_guardian(driver, credentials, bot_name , url):
             
             signin_button = wait.until(EC.presence_of_element_located((By.ID, "signin-button"))).click()
 
-            time.sleep(10)
+            sleep(10)
             try:
                 dashboard = exists(driver, By.CSS_SELECTOR, ".icon-profile-use")
                 if dashboard: 
@@ -619,8 +602,6 @@ def login_guardian(driver, credentials, bot_name , url):
     
 
                     
-
-
 def login_sun_life(driver, credentials, bot_name , url):
    
     dashboard = None
@@ -662,7 +643,7 @@ def login_sun_life(driver, credentials, bot_name , url):
                             send_status(token, data={'bot': bot_name, 'clinic': clinic_id, 'status': 5})
                                  
                     
-            except NoSuchWindowException:
+            except (TimeoutException, NoSuchWindowException) as e:
                 special_print('2FA unsuccessful', 'RED')
                 send_status(token, data={'bot': bot_name, 'clinic': clinic_id, 'status': 2})
             except Exception as e:
@@ -755,10 +736,7 @@ def login_always_assist(driver, credentials, bot_name, url):
             password_input.send_keys(credentials[1])
             
             login_button = wait.until(EC.presence_of_element_located((By.ID,'failed_login_submit_btn')))
-            login_button.click()
-           
-
-                
+            login_button.click()                         
         
         except Exception as e:
             special_print(f"Error during 2FA: {str(e)}", 'RED')
@@ -799,7 +777,7 @@ def main():
 
             for idx, bot_name in enumerate(bots_2fa):              
                 if idx != 0:
-                    time.sleep(5)
+                    sleep(2)
                     input(f"Press Enter to start the next login process...")
                     if driver:
                         driver.quit()
@@ -857,7 +835,7 @@ def main():
     finally:
         if driver:
             print("All logins completed.")
-            time.sleep(3)
+            sleep(3)
             driver.quit()
             print("Session closed.")
 
