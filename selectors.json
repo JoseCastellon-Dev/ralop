@@ -1,0 +1,16 @@
+{
+    "SD_V19":{
+        "windows":{
+            "main_window": {"title": "^CS SoftDent Software", "app": "SDWIN.EXE", "path": "SDWIN.EXE", "typeName": "WindowControl"}},
+            "login_window":{"title": "^SoftDent Login","app": "SDWIN.EXE", "path": "SDWIN.EXE", "typeName": "WindowControl"}
+        },
+        "login":{
+            "exist_login":{"parent": {"cls": ""}, "children": [{"ctrlid": "", "cls": "#32770", "handle": "3736462", "title": "SoftDent Login", "ctrltype": "WindowControl", "idx": 0}, {"ctrlid": "42304", "cls": "Edit", "handle": "918980", "title": "", "ctrltype": "EditControl", "idx": 0}]},
+            "user_txt":{"parent": {"cls": ""}, "children": [{"ctrlid": "", "cls": "#32770", "handle": "3736462", "title": "SoftDent Login", "ctrltype": "WindowControl", "idx": 0}, {"ctrlid": "42304", "cls": "Edit", "handle": "918980", "title": "", "ctrltype": "EditControl", "idx": 0}]}
+
+            
+        }
+}
+
+
+
